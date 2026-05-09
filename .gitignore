@@ -1,18 +1,13 @@
-# กัน secrets หลุดเข้า git
-.env
-.env.local
-.env.*.local
-
-# ผล OCR ที่ generate ขึ้น
-output/
-
 # Python
 __pycache__/
-*.pyc
-.venv/
-venv/
+*.py[cod]
 
-# IDE
-.vscode/
-.idea/
+# Environment variables (API keys)
+.env
+
+# Large generated directories
+data/
+output/
+
+# macOS
 .DS_Store

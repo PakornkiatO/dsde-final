@@ -47,21 +47,23 @@ from typhoon_ocr.ocr_utils import prepare_ocr_messages
 load_dotenv()
 
 # ─── Config ──────────────────────────────────────────────────────────────
-DATA_DIR = Path("data")
-OUTPUT_DIR = Path("output")
+_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR    = _ROOT / "data"
+OUTPUT_DIR  = _ROOT / "output"
+REPORTS_DIR = _ROOT / "reports"
 MODEL = "typhoon-ocr"
 
 DEFAULT_WORKERS = 4
 RATE_PER_SEC = 1.8                # Typhoon limit คือ 2 req/s, เผื่อ buffer
 
-MAX_RETRIES = 6
+MAX_RETRIES = 1
 BASE_TIMEOUT = 180.0              # OCR หน้ายากๆ ใช้เวลา > 90s ได้
 TIMEOUT_GROWTH = 1.4              # 180 → 252 → 353 → 494 → 691 → 968
 BACKOFF_BASE = 2.0
 BACKOFF_MAX = 60.0
 
-FAILED_LOG = Path("ocr_failures.json")
-DONE_LOG = Path("ocr_done.json")
+FAILED_LOG = REPORTS_DIR / "ocr_failures.json"
+DONE_LOG   = REPORTS_DIR / "ocr_done.json"
 
 _state_lock = threading.Lock()
 
@@ -130,7 +132,7 @@ def is_transient(exc: BaseException) -> bool:
     if isinstance(exc, TRANSIENT):
         return True
     if isinstance(exc, APIStatusError):
-        return exc.status_code >= 500 or exc.status_code == 429
+        return exc.status_code >= 500 or exc.status_code == 429 or exc.status_code == 408
     if isinstance(exc, RuntimeError) and "empty OCR response" in str(exc):
         return True
     return False
@@ -288,6 +290,8 @@ def main() -> None:
 
     if not os.environ.get("TYPHOON_OCR_API_KEY"):
         sys.exit("❌ ไม่พบ TYPHOON_OCR_API_KEY ใน .env")
+
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
     data_root: Path = args.data_dir
     output_root: Path = args.output_dir

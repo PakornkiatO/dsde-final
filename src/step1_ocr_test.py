@@ -39,8 +39,9 @@ load_dotenv()
 
 
 # ============ ปรับ config ตรงนี้ ============
-PDF_PATH = "election_doc.pdf"   # ใส่ path ไฟล์ PDF (หรือส่งทาง argv)
-OUTPUT_DIR = "output"            # โฟลเดอร์เก็บ markdown ราย-หน้า
+_ROOT = __import__("pathlib").Path(__file__).resolve().parent.parent
+PDF_PATH = "election_doc.pdf"           # ใส่ path ไฟล์ PDF (หรือส่งทาง argv)
+OUTPUT_DIR = str(_ROOT / "output")      # โฟลเดอร์เก็บ markdown ราย-หน้า
 MODEL = "typhoon-ocr"            # v1.5 (default, recommended)
 RATE_LIMIT_DELAY = 0.6           # วินาทีระหว่าง request — Typhoon จำกัด 2 req/s
 MAX_RETRIES = 3                  # ลอง retry หากเจอ error ชั่วคราว
